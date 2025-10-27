@@ -15,11 +15,25 @@ jobs:
     - name: Checkout código
       uses: actions/checkout@v4
       
-    - name: Build APK
+    - name: Setup environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk zip
+        sudo apt-get install -y python3-pip openjdk-17-jdk zip wget
         pip3 install buildozer cython==0.29.33
+        
+    - name: Accept Android licenses BEFORE buildozer
+      run: |
+        # Crear directorio y archivo necesario
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        
+        # Forzar aceptación de licencias
+        echo "Aceptando licencias Android..."
+        yes | sdkmanager --licenses > /dev/null 2>&1 || true
+        echo "Licencias aceptadas (o ignoradas)"
+        
+    - name: Build APK
+      run: |
         buildozer -v android debug
         
     - name: Upload APK artifact
