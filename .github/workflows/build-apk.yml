@@ -20,55 +20,26 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install ALL system dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           python3-pip \
-          python3-venv \
-          autoconf \
-          automake \
-          build-essential \
-          ccache \
-          cmake \
-          cython3 \
-          gettext \
-          libffi-dev \
-          libltdl-dev \
-          libssl-dev \
-          libtool \
-          openjdk-11-jdk \
-          pkg-config \
-          python3-dev \
-          zlib1g-dev \
-          git \
-          wget \
-          curl \
+          openjdk-17-jdk \
+          zip \
           unzip
           
-    - name: Install Python dependencies
+    - name: Install Buildozer and dependencies
       run: |
-        pip3 install --user cython==0.29.33
         pip3 install --user buildozer
+        pip3 install --user cython==0.29.33
         
-    - name: Accept Android SDK licenses
-      run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
-        
-    - name: Build APK with Buildozer
+    - name: Build APK with Buildozer (auto-download SDK)
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-        export ANDROID_SDK_ROOT="$ANDROID_HOME"
-        
-        # Aceptar licencias antes de buildozer
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
-        
-        buildozer android debug
+        # Forzar descarga limpia del SDK
+        rm -rf ~/.buildozer/android/platform/android-sdk
+        buildozer -v android debug
         ls -la bin/
         
     - name: Upload APK artifact
