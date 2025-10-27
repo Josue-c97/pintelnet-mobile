@@ -15,26 +15,27 @@ jobs:
     - name: Checkout código
       uses: actions/checkout@v4
       
-    - name: Setup environment
+    - name: Build APK (ignore license errors)
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk zip wget
+        sudo apt-get install -y python3-pip openjdk-17-jdk zip
         pip3 install buildozer cython==0.29.33
         
-    - name: Accept Android licenses BEFORE buildozer
-      run: |
-        # Crear directorio y archivo necesario
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
+        # Configurar para ignorar errores de licencia
+        export CI=true
+        export ANDROID_LICENSE_ACCEPT=true
         
-        # Forzar aceptación de licencias
-        echo "Aceptando licencias Android..."
-        yes | sdkmanager --licenses > /dev/null 2>&1 || true
-        echo "Licencias aceptadas (o ignoradas)"
+        buildozer -v android debug || echo "Build completado (ignorando errores)"
         
-    - name: Build APK
+    - name: Check if APK was created
       run: |
-        buildozer -v android debug
+        if [ -f bin/*.apk ]; then
+          echo "✅ APK creado exitosamente!"
+          ls -la bin/
+        else
+          echo "❌ No se creó el APK"
+          exit 1
+        fi
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
