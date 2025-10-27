@@ -65,14 +65,13 @@ jobs:
         
         echo "✅ Android SDK setup COMPLETADO"
         
-    - name: Build APK with Buildozer (FORZAR CONFIG)
+    - name: Build APK with Buildozer (DIRECTO A DEBUG)
       run: |
         export PATH="$HOME/.local/bin:$PATH"
         export ANDROID_HOME="$HOME/android-sdk"
         export ANDROID_SDK_ROOT="$ANDROID_HOME"
         
-        # Forzar que Buildozer use NUESTRO SDK
-        buildozer -v android clean
+        # SOLO DEBUG - sin clean
         buildozer -v android debug
         ls -la bin/
         
