@@ -65,41 +65,40 @@ jobs:
         
         echo "✅ Android SDK setup COMPLETADO - Build Tools 34.0.0 instalado"
         
-    - name: Create buildozer.spec with our SDK
+    - name: Configure Buildozer to use our SDK
       run: |
-        cat > buildozer.spec << 'BUILDOZER_SPEC'
-[app]
-title = PintelNet Mobile
-package.name = pintelnet
-package.domain = org.pintelnet
-
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-
-version = 0.1
-requirements = python3,kivy,requests
-
-[buildozer]
-log_level = 2
-
-[android]
-# FORZAR NUESTRO SDK
-android.sdk_path = $HOME/android-sdk
-android.ndk_path = $HOME/android-sdk/ndk/25.1.8937393
-
-# Configuración Android
-api = 34
-minapi = 21
-ndk_api = 21
-
-# Permisos
-android.permissions = INTERNET
-
-# Arquitecturas
-android.arch = arm64-v8a, armeabi-v7a
-BUILDOZER_SPEC
+        # Crear buildozer.spec manualmente sin heredoc
+        echo "[app]" > buildozer.spec
+        echo "title = PintelNet Mobile" >> buildozer.spec
+        echo "package.name = pintelnet" >> buildozer.spec
+        echo "package.domain = org.pintelnet" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "source.dir = ." >> buildozer.spec
+        echo "source.include_exts = py,png,jpg,kv,atlas" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "version = 0.1" >> buildozer.spec
+        echo "requirements = python3,kivy,requests" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "[buildozer]" >> buildozer.spec
+        echo "log_level = 2" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "[android]" >> buildozer.spec
+        echo "# FORZAR NUESTRO SDK" >> buildozer.spec
+        echo "android.sdk_path = $HOME/android-sdk" >> buildozer.spec
+        echo "android.ndk_path = $HOME/android-sdk/ndk/25.1.8937393" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "# Configuración Android" >> buildozer.spec
+        echo "api = 34" >> buildozer.spec
+        echo "minapi = 21" >> buildozer.spec
+        echo "ndk_api = 21" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "# Permisos" >> buildozer.spec
+        echo "android.permissions = INTERNET" >> buildozer.spec
+        echo "" >> buildozer.spec
+        echo "# Arquitecturas" >> buildozer.spec
+        echo "android.arch = arm64-v8a, armeabi-v7a" >> buildozer.spec
         
-    - name: Build APK with Buildozer (FORZAR SDK NUESTRO)
+    - name: Build APK with Buildozer
       run: |
         export PATH="$HOME/.local/bin:$PATH"
         
