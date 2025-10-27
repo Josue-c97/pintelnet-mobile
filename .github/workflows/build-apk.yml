@@ -35,6 +35,12 @@ jobs:
         pip3 install --user buildozer
         pip3 install --user cython==0.29.33
         
+    - name: ELIMINAR SDK VIEJO de Buildozer
+      run: |
+        # ELIMINAR COMPLETAMENTE el SDK viejo de Buildozer
+        rm -rf ~/.buildozer/android/platform/android-sdk
+        rm -rf ~/.buildozer/android/platform/python-for-android
+        
     - name: Setup Android SDK COMPLETO
       run: |
         # Configurar variables de entorno GLOBALES
@@ -67,7 +73,7 @@ jobs:
         
     - name: Configure Buildozer to use our SDK
       run: |
-        # Crear buildozer.spec manualmente sin heredoc
+        # Crear buildozer.spec manualmente
         echo "[app]" > buildozer.spec
         echo "title = PintelNet Mobile" >> buildozer.spec
         echo "package.name = pintelnet" >> buildozer.spec
