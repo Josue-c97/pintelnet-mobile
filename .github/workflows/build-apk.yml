@@ -51,9 +51,23 @@ jobs:
         pip3 install --user cython==0.29.33
         pip3 install --user buildozer
         
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+        
     - name: Build APK with Buildozer
       run: |
         export PATH="$HOME/.local/bin:$PATH"
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        export ANDROID_SDK_ROOT="$ANDROID_HOME"
+        
+        # Aceptar licencias antes de buildozer
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        
         buildozer android debug
         ls -la bin/
         
