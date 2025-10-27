@@ -27,18 +27,52 @@ jobs:
           python3-pip \
           openjdk-17-jdk \
           zip \
-          unzip
+          unzip \
+          wget
           
     - name: Install Buildozer and dependencies
       run: |
         pip3 install --user buildozer
         pip3 install --user cython==0.29.33
         
-    - name: Build APK with Buildozer (auto-download SDK)
+    - name: Setup Android SDK and accept licenses AGGRESSIVELY
+      run: |
+        # Configurar variables de entorno CRÍTICAS
+        export ANDROID_HOME="$HOME/android-sdk"
+        export ANDROID_SDK_ROOT="$ANDROID_HOME"
+        mkdir -p $ANDROID_HOME
+        
+        # Descargar Command Line Tools NUEVOS
+        cd $ANDROID_HOME
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip -q commandlinetools-linux-9477386_latest.zip
+        mv cmdline-tools latest
+        
+        # Configurar PATH
+        export PATH="$ANDROID_HOME/latest/bin:$PATH"
+        
+        # CREAR ARCHIVO DE LICENCIAS MANUALMENTE
+        mkdir -p $ANDROID_HOME/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+        echo "d975f751698a77b662f1254ddbeed3901e15f637" > $ANDROID_HOME/licenses/intel-android-extra-license
+        
+        # Aceptar licencias DE FORMA AGRESIVA
+        yes | sdkmanager --licenses > /dev/null 2>&1 || true
+        
+        # Instalar componentes CRÍTICOS
+        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" --sdk_root=$ANDROID_SDK_ROOT
+        
+        echo "✅ Android SDK setup COMPLETADO"
+        
+    - name: Build APK with Buildozer (FORZAR CONFIG)
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        # Forzar descarga limpia del SDK
-        rm -rf ~/.buildozer/android/platform/android-sdk
+        export ANDROID_HOME="$HOME/android-sdk"
+        export ANDROID_SDK_ROOT="$ANDROID_HOME"
+        
+        # Forzar que Buildozer use NUESTRO SDK
+        buildozer -v android clean
         buildozer -v android debug
         ls -la bin/
         
