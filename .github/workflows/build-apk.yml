@@ -1,0 +1,58 @@
+name: Build PintelNet APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip \
+          autoconf \
+          automake \
+          build-essential \
+          ccache \
+          cmake \
+          gettext \
+          libffi-dev \
+          libltdl-dev \
+          libssl-dev \
+          libtool \
+          openjdk-11-jdk \
+          pkg-config \
+          python3-dev \
+          zlib1g-dev
+          
+    - name: Install Buildozer
+      run: |
+        pip3 install --user buildozer
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+    - name: Build APK with Buildozer
+      run: |
+        buildozer android debug
+        ls -la bin/
+        
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: pintelnet-apk
+        path: bin/*.apk
+        retention-days: 30
