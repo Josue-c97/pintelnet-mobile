@@ -35,12 +35,15 @@ jobs:
         pip3 install --user buildozer
         pip3 install --user cython==0.29.33
         
-    - name: Setup Android SDK and accept licenses AGGRESSIVELY
+    - name: Setup Android SDK COMPLETO
       run: |
-        # Configurar variables de entorno CRÍTICAS
+        # Configurar variables de entorno GLOBALES
         export ANDROID_HOME="$HOME/android-sdk"
         export ANDROID_SDK_ROOT="$ANDROID_HOME"
         mkdir -p $ANDROID_HOME
+        
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
         
         # Descargar Command Line Tools NUEVOS
         cd $ANDROID_HOME
@@ -48,8 +51,8 @@ jobs:
         unzip -q commandlinetools-linux-9477386_latest.zip
         mv cmdline-tools latest
         
-        # Configurar PATH
-        export PATH="$ANDROID_HOME/latest/bin:$PATH"
+        # Configurar PATH GLOBAL
+        echo "$ANDROID_HOME/latest/bin" >> $GITHUB_PATH
         
         # CREAR ARCHIVO DE LICENCIAS MANUALMENTE
         mkdir -p $ANDROID_HOME/licenses
@@ -57,21 +60,49 @@ jobs:
         echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
         echo "d975f751698a77b662f1254ddbeed3901e15f637" > $ANDROID_HOME/licenses/intel-android-extra-license
         
-        # Aceptar licencias DE FORMA AGRESIVA
-        yes | sdkmanager --licenses > /dev/null 2>&1 || true
-        
         # Instalar componentes CRÍTICOS
-        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" --sdk_root=$ANDROID_SDK_ROOT
+        yes | $ANDROID_HOME/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" --sdk_root=$ANDROID_SDK_ROOT
         
-        echo "✅ Android SDK setup COMPLETADO"
+        echo "✅ Android SDK setup COMPLETADO - Build Tools 34.0.0 instalado"
         
-    - name: Build APK with Buildozer (DIRECTO A DEBUG)
+    - name: Build APK with Buildozer (FORZAR SDK NUESTRO)
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        export ANDROID_HOME="$HOME/android-sdk"
-        export ANDROID_SDK_ROOT="$ANDROID_HOME"
         
-        # SOLO DEBUG - sin clean
+        # CONFIGURAR BUILDOCER.SPEC PARA USAR NUESTRO SDK
+        cat > buildozer.spec << 'EOF'
+[app]
+title = PintelNet Mobile
+package.name = pintelnet
+package.domain = org.pintelnet
+
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+
+version = 0.1
+requirements = python3,kivy,requests
+
+[buildozer]
+log_level = 2
+
+[android]
+# FORZAR NUESTRO SDK
+android.sdk_path = $HOME/android-sdk
+android.ndk_path = $HOME/android-sdk/ndk/25.1.8937393
+
+# Configuración Android
+api = 34
+minapi = 21
+ndk_api = 21
+
+# Permisos
+android.permissions = INTERNET
+
+# Arquitecturas
+android.arch = arm64-v8a, armeabi-v7a
+EOF
+
+        # EJECUTAR BUILDOCER CON NUESTRO SDK
         buildozer -v android debug
         ls -la bin/
         
