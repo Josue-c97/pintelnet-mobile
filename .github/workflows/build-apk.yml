@@ -20,16 +20,18 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install system dependencies
+    - name: Install ALL system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           python3-pip \
+          python3-venv \
           autoconf \
           automake \
           build-essential \
           ccache \
           cmake \
+          cython3 \
           gettext \
           libffi-dev \
           libltdl-dev \
@@ -38,15 +40,20 @@ jobs:
           openjdk-11-jdk \
           pkg-config \
           python3-dev \
-          zlib1g-dev
+          zlib1g-dev \
+          git \
+          wget \
+          curl \
+          unzip
           
-    - name: Install Buildozer
+    - name: Install Python dependencies
       run: |
+        pip3 install --user cython==0.29.33
         pip3 install --user buildozer
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
         
     - name: Build APK with Buildozer
       run: |
+        export PATH="$HOME/.local/bin:$PATH"
         buildozer android debug
         ls -la bin/
         
