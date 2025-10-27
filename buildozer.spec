@@ -1,29 +1,28 @@
-# 📁 pintelnet_pro/buildozer.spec
 [app]
-title = PintelNet Instaladores
+title = PintelNet Mobile
 package.name = pintelnet
 package.domain = org.pintelnet
 
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,txt
+source.include_exts = py,png,jpg,kv,atlas
 
-version = 1.0
-requirements = python3,kivy,requests,openssl,android
+version = 0.1
+requirements = python3,kivy,requests
 
 [buildozer]
 log_level = 2
 
 [android]
-api = 33
+# Skip license check
+android.accept_sdk_license = True
+
+# Android configuration
+api = 34
 minapi = 21
-ndk = 25b
-permissions = INTERNET,ACCESS_NETWORK_STATE,ACCESS_WIFI_STATE
+ndk_api = 21
 
-[android:entrypoint]
-main = main:PintelNetApp().run()
+# Permissions
+android.permissions = INTERNET
 
-[android:meta-data]
-android.app.uses_cleartext_traffic = true
-
-[android:activity]
-android:usesCleartextTraffic = true
+# Architectures  
+android.arch = arm64-v8a, armeabi-v7a
