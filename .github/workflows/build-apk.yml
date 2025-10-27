@@ -65,12 +65,9 @@ jobs:
         
         echo "✅ Android SDK setup COMPLETADO - Build Tools 34.0.0 instalado"
         
-    - name: Build APK with Buildozer (FORZAR SDK NUESTRO)
+    - name: Create buildozer.spec with our SDK
       run: |
-        export PATH="$HOME/.local/bin:$PATH"
-        
-        # CONFIGURAR BUILDOCER.SPEC PARA USAR NUESTRO SDK
-        cat > buildozer.spec << 'EOF'
+        cat > buildozer.spec << 'BUILDOZER_SPEC'
 [app]
 title = PintelNet Mobile
 package.name = pintelnet
@@ -100,8 +97,12 @@ android.permissions = INTERNET
 
 # Arquitecturas
 android.arch = arm64-v8a, armeabi-v7a
-EOF
-
+BUILDOZER_SPEC
+        
+    - name: Build APK with Buildozer (FORZAR SDK NUESTRO)
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        
         # EJECUTAR BUILDOCER CON NUESTRO SDK
         buildozer -v android debug
         ls -la bin/
